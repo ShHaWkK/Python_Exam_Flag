@@ -104,6 +104,39 @@ MORSE_DICT = {
     '--...': '7', '---..': '8', '----.': '9'
 }
 
+"""
+Flag 6 
+"""
+
+
+def decode_braille(braille):
+    """Convertit le Braille Unicode en texte clair, gère les espaces et ignore les caractères inconnus."""
+    brailleDict = {
+        '\u2801': 'a', '\u2803': 'b', '\u2809': 'c', '\u2819': 'd', '\u2811': 'e',
+        '\u280b': 'f', '\u281b': 'g', '\u2813': 'h', '\u280a': 'i', '\u281a': 'j',
+        '\u2805': 'k', '\u2807': 'l', '\u280d': 'm', '\u281d': 'n', '\u2815': 'o',
+        '\u280f': 'p', '\u281f': 'q', '\u2817': 'r', '\u280e': 's', '\u281e': 't',
+        '\u2825': 'u', '\u2827': 'v', '\u283a': 'w', '\u282d': 'x', '\u283d': 'y',
+        '\u2835': 'z', '\u2821': ' ',
+        '\u2800': '1', '\u2802': '2', '\u2804': '3', '\u2806': '4', '\u2808': '5',
+        '\u2810': '6', '\u2812': '7', '\u2814': '8', '\u2816': '9', '\u2818': '0',
+        '\u2820': '!', '\u280c': '-', '\u2808': '?', '\u2804': '.', '\u2806': "'", '\u281c': ',',
+    }
+
+    decoded_message = []
+
+    for char in braille:
+        if char in brailleDict:
+            decoded_message.append(brailleDict[char])
+            # On va ignorer l'espace
+        elif char == ' ':
+            continue
+        else:
+            print(f"Caractère inconnu ignoré : {repr(char)}")
+            continue
+
+    return ''.join(decoded_message).upper()
+
 def flag1(conn):
     """
     Répond à la première question (nom/prénom/classe).
@@ -228,6 +261,31 @@ def flag5(conn, statement):
     except Exception as e:
         print(f"Erreur dans le traitement de flag5 : {e}")
         return None
+    
+    
+def flag6(conn, statement):
+    """
+    Traite la question 6 : décodage d'un message en Braille.
+    """
+    try:
+        # On extrait le message hexadécimal
+        cleanAnswer = statement.split(" ")[-1].strip()
+        print(f"Message hexadécimal : {cleanAnswer}")
+
+        # Convertir de l'hexadécimal en texte
+        decodedAnswer = bytes.fromhex(cleanAnswer).decode('utf-8')
+        print(f"Message décodé en Braille Unicode : {decodedAnswer}")
+
+        # Convertir du Braille Unicode en texte
+        finalAnswer = decode_braille(decodedAnswer)
+        print(f"Message final décodé : {finalAnswer}")
+
+        conn.sendall(finalAnswer.encode())
+        print(f"Réponse envoyée : {finalAnswer}")
+        return wait_server(conn), finalAnswer
+    except Exception as e:
+        print(f"Erreur inattendue dans flag6 : {e}")
+        return None
 
 
 def main():
@@ -236,38 +294,36 @@ def main():
     """
     conn = connexion()
     try:
-        print("---- Récupération des FLAGS ----")
+        print("---- FLAG ----")
+        
+        # FLAG 1
         flag1_result = flag1(conn)
-        if not flag1_result:
-            raise Exception("Erreur dans le traitement de flag1")
-
-        flag2_result = flag2(conn)
-        if not flag2_result:
-            raise Exception("Erreur dans le traitement de flag2")
-
-        flag3_result = flag3(conn, flag2_result)
-        if not flag3_result:
-            print("Erreur : Impossible de résoudre Flag 3. Passage au suivant.")
-            flag4_result = None
-        else:
-            flag4_result = flag4(conn, flag3_result)
-
-
-        if not flag4_result:
-            print("Erreur : Impossible de résoudre Flag 4. Passage au suivant.")
-            flag5_result = None
-        else:
-            flag5_result = flag5(conn, flag4_result)
-
-        print("\nRécapitulatif des FLAGS :")
         print(f"FLAG 1 : {flag1_result}")
+
+        # FLAG 2
+        flag2_result = flag2(conn)
         print(f"FLAG 2 : {flag2_result}")
+
+        # FLAG 3
+        flag3_result = flag3(conn, flag2_result)
         print(f"FLAG 3 : {flag3_result}")
+
+        # FLAG 4
+        flag4_result = flag4(conn, flag3_result) if flag3_result else None
         print(f"FLAG 4 : {flag4_result}")
+
+        # FLAG 5
+        flag5_result = flag5(conn, flag4_result) if flag4_result else None
         print(f"FLAG 5 : {flag5_result}")
+
+        # FLAG 6
+        flag6_result = flag6(conn, flag5_result) if flag5_result else None
+        print(f"FLAG 6 : {flag6_result}")
+
     finally:
         conn.close()
         print("Connexion fermée.")
+
 
 
 if __name__ == "__main__":
