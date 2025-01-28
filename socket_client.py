@@ -32,7 +32,7 @@ def connexion():
         exit()
 
 
-def wait_answer(conn):
+def wait_server(conn):
     """
     Attend et retourne la réponse du serveur.
     """
@@ -112,7 +112,7 @@ def flag1(conn):
         response = "alexandre/uzan/3si2"
         conn.sendall(response.encode())
         print(f"Réponse envoyée : {response}")
-        return wait_answer(conn)
+        return wait_server(conn)
     except Exception as e:
         print(f"Erreur lors de l'envoi : {e}")
 
@@ -125,7 +125,7 @@ def flag2(conn):
         today = datetime.datetime.now().strftime("%d/%m")
         conn.sendall(today.encode())
         print(f"Réponse envoyée : {today}")
-        return wait_answer(conn)
+        return wait_server(conn)
     except Exception as e:
         print(f"Erreur lors de l'envoi : {e}")
 
@@ -157,7 +157,7 @@ def flag3(conn, statement):
         # Envoi du résultat
         conn.sendall(str(result).encode())
         print(f"Résultat envoyé : {result}")
-        return wait_answer(conn)
+        return wait_server(conn)
 
     except ValueError as ve:
         print(f"Erreur dans le traitement de l'opération mathématique : {ve}")
@@ -184,7 +184,7 @@ def flag4(conn, statement):
 
         conn.sendall(decoded_message.encode())
         print(f"Message décodé envoyé : {decoded_message}")
-        return wait_answer(conn)
+        return wait_server(conn)
 
     except ValueError as ve:
         print(f"Erreur : {ve}")
@@ -223,7 +223,7 @@ def flag5(conn, statement):
 
         conn.sendall(final_message.encode())
         print(f"Réponse envoyée : {final_message}")
-        return wait_answer(conn)
+        return wait_server(conn)
 
     except Exception as e:
         print(f"Erreur dans le traitement de flag5 : {e}")
