@@ -7,6 +7,8 @@ import re
 from dotenv import load_dotenv
 import os
 
+reponses = {}
+
 def connexion():
     """
     Établit une connexion au serveur.
@@ -158,6 +160,7 @@ def flag1(conn):
         response = "alexandre/uzan/3si2"
         conn.sendall(response.encode())
         print(f"Réponse envoyée : {response}")
+        reponses["1"] = response
         return wait_server(conn)
     except Exception as e:
         print(f"Erreur lors de l'envoi : {e}")
@@ -171,6 +174,7 @@ def flag2(conn):
         today = datetime.datetime.now().strftime("%d/%m")
         conn.sendall(today.encode())
         print(f"Réponse envoyée : {today}")
+        reponses["2"] = today
         return wait_server(conn)
     except Exception as e:
         print(f"Erreur lors de l'envoi : {e}")
@@ -203,6 +207,7 @@ def flag3(conn, statement):
         # Envoi du résultat
         conn.sendall(str(result).encode())
         print(f"Résultat envoyé : {result}")
+        reponses["3"] = result
         return wait_server(conn)
 
     except ValueError as ve:
@@ -230,6 +235,7 @@ def flag4(conn, statement):
 
         conn.sendall(decoded_message.encode())
         print(f"Message décodé envoyé : {decoded_message}")
+        reponses["4"] = decoded_message
         return wait_server(conn)
 
     except ValueError as ve:
@@ -269,6 +275,7 @@ def flag5(conn, statement):
 
         conn.sendall(final_message.encode())
         print(f"Réponse envoyée : {final_message}")
+        reponses["5"] = final_message
         return wait_server(conn)
 
     except Exception as e:
@@ -300,6 +307,7 @@ def flag6(conn, statement):
 
         conn.sendall(finalAnswer.encode())
         print(f"Réponse envoyée : {finalAnswer}")
+        reponses["6"] = finalAnswer
         return wait_server(conn), finalAnswer
     except Exception as e:
         print(f"Erreur inattendue dans flag6 : {e}")
@@ -329,11 +337,30 @@ def flag7(conn, statement):
 
         conn.sendall(color_name.encode())
         print(f"Réponse envoyée : {color_name}")
+        reponses["7"] = color_name
         return wait_server(conn)
     except Exception as e:
         print(f"Erreur inattendue dans flag7 : {e}")
         return None
 
+def flag8(conn, statement):
+    """
+    Respond with the answer to a previously answered question.
+    """    
+    match = re.search(r"réponse de la question (\d+)", statement, re.IGNORECASE)
+    if not match:
+        print("La question précédente n'a pas été trouvée.")
+        return None
+
+    question_number = int(match.group(1))
+    if not reponses.get(str(question_number)):
+        print(f"Réponse pour la question {question_number} non trouvée.")
+        return None
+
+    response = reponses[str(question_number)]
+    conn.sendall(response.encode())
+    print(f"Réponse envoyée pour la question {question_number} : {response}")
+    return wait_server(conn)
 
 def main():
     """
@@ -371,6 +398,9 @@ def main():
         flag7_result = flag7(conn, flag6_result[0]) if flag6_result else None
         print(f"FLAG 7 : {flag7_result}")
 
+        # FLAG 8
+        flag8_result = flag8(conn, flag7_result) if flag7_result else None
+        print(f"FLAG 8 : {flag8_result}")
 
     finally:
         conn.close()
