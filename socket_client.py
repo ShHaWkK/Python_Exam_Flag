@@ -1,6 +1,7 @@
 import socket
 import datetime
 import base64
+import webcolors
 from base58 import b58decode
 import re
 from dotenv import load_dotenv
@@ -137,6 +138,18 @@ def decode_braille(braille):
 
     return ''.join(decoded_message).upper()
 
+
+def get_color_name(rgb_tuple):
+    """
+    Cette fonction sert à trouver le nom de la couleur correspondant aux valeurs RGB.
+    """
+    try:
+        return webcolors.rgb_to_name(rgb_tuple)
+    except ValueError:
+        closest_color = min(webcolors.CSS3_NAMES_TO_HEX,
+                            key=lambda name: sum((c1 - c2) ** 2 for c1, c2 in zip(webcolors.hex_to_rgb(webcolors.CSS3_NAMES_TO_HEX[name]), rgb_tuple)))
+        return closest_color
+
 def flag1(conn):
     """
     Répond à la première question (nom/prénom/classe).
@@ -268,15 +281,20 @@ def flag6(conn, statement):
     Traite la question 6 : décodage d'un message en Braille.
     """
     try:
-        # On extrait le message hexadécimal
+        """
+        Explication de la fonction : 
+        Tout d'abord, j'ai extrait le message hexadécimal de la question.
+        Ensuite, j'ai converti le message hexadécimal en texte.
+        J'ai ensuite converti le texte en Braille Unicode.
+        Enfin, j'ai converti le Braille Unicode en texte clair avec l'aide de la fonction decode_braille.
+        
+        """
         cleanAnswer = statement.split(" ")[-1].strip()
         print(f"Message hexadécimal : {cleanAnswer}")
 
-        # Convertir de l'hexadécimal en texte
         decodedAnswer = bytes.fromhex(cleanAnswer).decode('utf-8')
         print(f"Message décodé en Braille Unicode : {decodedAnswer}")
 
-        # Convertir du Braille Unicode en texte
         finalAnswer = decode_braille(decodedAnswer)
         print(f"Message final décodé : {finalAnswer}")
 
@@ -285,6 +303,35 @@ def flag6(conn, statement):
         return wait_server(conn), finalAnswer
     except Exception as e:
         print(f"Erreur inattendue dans flag6 : {e}")
+        return None
+    
+def flag7(conn, statement):
+    """
+    Répond à la question 7 concernant la couleur pour les valeurs RGB données.
+    """
+    try:
+        """
+        Explication dans ma fonction 
+        Tout d'abord, j'ai utilisé une expression régulière pour capturer les valeurs RGB dans la question.
+        Ensuite, j'ai converti les valeurs capturées en tuple d'entiers.
+        Au début j'avais affiché en hexadécimal les valeurs RGB mais cela ne marchait pas, car il demandait le nom de la couleur en RGB.
+        Enfin, j'ai utilisé la fonction get_color_name pour trouver le nom de la couleur aux valeurs RGB.
+        """
+        match = re.search(r'RGB\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)', statement, re.IGNORECASE)
+        if not match:
+            raise ValueError(f"Impossible de trouver les valeurs RGB dans la question : {statement}")
+        
+        rgb_values = tuple(map(int, match.groups()))
+        print(f"Valeurs RGB extraites : {rgb_values}")
+
+        color_name = get_color_name(rgb_values)
+        print(f"Nom de la couleur : {color_name}")
+
+        conn.sendall(color_name.encode())
+        print(f"Réponse envoyée : {color_name}")
+        return wait_server(conn)
+    except Exception as e:
+        print(f"Erreur inattendue dans flag7 : {e}")
         return None
 
 
@@ -319,6 +366,11 @@ def main():
         # FLAG 6
         flag6_result = flag6(conn, flag5_result) if flag5_result else None
         print(f"FLAG 6 : {flag6_result}")
+
+        # FLAG 7
+        flag7_result = flag7(conn, flag6_result[0]) if flag6_result else None
+        print(f"FLAG 7 : {flag7_result}")
+
 
     finally:
         conn.close()
