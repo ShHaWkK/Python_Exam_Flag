@@ -345,7 +345,7 @@ def flag7(conn, statement):
 
 def flag8(conn, statement):
     """
-    Réponds aux questions qui sont passés. 
+    Réponds aux questions précédentes demandées par le serveur.
     """    
     match = re.search(r"réponse de la question (\d+)", statement, re.IGNORECASE)
     if not match:
@@ -361,7 +361,10 @@ def flag8(conn, statement):
     response = str(reponses[question_number])
     conn.sendall(response.encode())
     print(f"Réponse envoyée pour la question {question_number}: {response}")
+    reponses["8"] = response
+
     return wait_server(conn)
+
 
 
 def flag9(conn, statement):
@@ -406,16 +409,22 @@ def flag9(conn, statement):
 
 def flag10(conn):
     """
-  Renvoyer toutes vos précédentes réponses, séparer par un underscore (_)
+    Renvoyer toutes vos précédentes réponses, séparées par un underscore (_).
     """
     try:
-        answer = "_".join(str(value) for value in reponses.values())
-        print("Réponse envoyée : ", answer)
+        # Trier par clé numérique pour respecter l'ordre
+        ordered_responses = [str(reponses[str(i)]) for i in range(1, 10)]
+        
+        # Séparer les réponses avec un underscore
+        answer = "_".join(ordered_responses)
+
+        print("Réponse envoyée :", answer)
         conn.sendall(answer.encode())
         return wait_server(conn)
     except Exception as e:
         print(f"Erreur lors de l'envoi de la réponse : {e}")
         exit()
+
 def main():
     """
     Exécute les étapes pour répondre aux questions.
