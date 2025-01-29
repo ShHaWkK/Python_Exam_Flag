@@ -6,6 +6,7 @@ from base58 import b58decode
 import re
 from dotenv import load_dotenv
 import os
+import string
 
 reponses = {}
 
@@ -151,6 +152,61 @@ def get_color_name(rgb_tuple):
         closest_color = min(webcolors.CSS3_NAMES_TO_HEX,
                             key=lambda name: sum((c1 - c2) ** 2 for c1, c2 in zip(webcolors.hex_to_rgb(webcolors.CSS3_NAMES_TO_HEX[name]), rgb_tuple)))
         return closest_color
+    
+
+def decrypt_cesar(text, key):
+    alphabet = string.ascii_lowercase
+    decrypted_text = []
+
+    for char in text:
+        if char in alphabet:
+            new_char = alphabet[(alphabet.index(char) - key) % 26]
+            decrypted_text.append(new_char)
+        else:
+            decrypted_text.append(char)
+
+    return ''.join(decrypted_text)
+
+
+def frequency_analysis(text):
+    letter_counts = {char: 0 for char in string.ascii_lowercase}
+
+    for char in text.lower():
+        if char in letter_counts:
+            letter_counts[char] += 1
+
+    total_letters = sum(letter_counts.values())
+    return {char: (count / total_letters) for char, count in letter_counts.items() if total_letters > 0}
+
+
+def chi_squared_distance(freq1, freq2):
+    return sum((freq1.get(letter, 0) - freq2.get(letter, 0))**2 / freq2.get(letter, 0.0001) for letter in string.ascii_lowercase)
+
+
+def find_best_cesar_shift(text):
+    english_freq = {
+        # Fréquence des lettres en anglais
+        # J'ai cherché sur internet : "Une distribution de fréquences des lettres dans la langue anglaise en minuscule"
+        'e': 12.70, 't': 9.06, 'a': 8.17, 'o': 7.51, 'i': 6.97, 'n': 6.75,
+        's': 6.33, 'h': 6.09, 'r': 5.99, 'd': 4.25, 'l': 4.03, 'c': 2.78,
+        'u': 2.76, 'm': 2.41, 'w': 2.36, 'f': 2.23, 'g': 2.02, 'y': 1.97,
+        'p': 1.93, 'b': 1.29, 'v': 0.98, 'k': 0.77, 'x': 0.15, 'j': 0.15,
+        'q': 0.10, 'z': 0.07
+    }
+
+    best_shift = 0
+    best_distance = float("inf")
+
+    for shift in range(26):
+        decrypted_text = decrypt_cesar(text, shift)
+        decrypted_freq = frequency_analysis(decrypted_text)
+        distance = chi_squared_distance(decrypted_freq, english_freq)
+
+        if distance < best_distance:
+            best_distance = distance
+            best_shift = shift
+
+    return decrypt_cesar(text, best_shift)
 
 def flag1(conn):
     """
@@ -424,7 +480,18 @@ def flag10(conn):
     except Exception as e:
         print(f"Erreur lors de l'envoi de la réponse : {e}")
         exit()
+def flag11(conn, statement):
+    try:
+        encrypted_message = statement.split(":")[-1].strip().replace('"', '')
+        best_word = find_best_cesar_shift(encrypted_message)
 
+        conn.sendall(best_word.encode())
+        reponses["11"] = best_word
+        return wait_server(conn)
+
+    except Exception as e:
+        print(f"Erreur lors du décryptage : {e}")
+        exit()
 def main():
     """
     Exécute les étapes pour répondre aux questions.
@@ -472,6 +539,10 @@ def main():
         # FLAG 10
         flag10_result = flag10(conn)
         print(f"FLAG 10 : {flag10_result}")
+
+        # FLAG 11
+        flag11_result = flag11(conn, flag10_result)
+        print(f"FLAG 11 : {flag11_result}")
 
 
     finally:
