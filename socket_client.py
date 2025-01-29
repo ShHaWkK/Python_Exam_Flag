@@ -345,23 +345,77 @@ def flag7(conn, statement):
 
 def flag8(conn, statement):
     """
-    Respond with the answer to a previously answered question.
+    Réponds aux questions qui sont passés. 
     """    
     match = re.search(r"réponse de la question (\d+)", statement, re.IGNORECASE)
     if not match:
         print("La question précédente n'a pas été trouvée.")
         return None
 
-    question_number = int(match.group(1))
-    if not reponses.get(str(question_number)):
+    question_number = match.group(1)
+
+    if question_number not in reponses:
         print(f"Réponse pour la question {question_number} non trouvée.")
         return None
 
-    response = reponses[str(question_number)]
+    response = str(reponses[question_number])
     conn.sendall(response.encode())
-    print(f"Réponse envoyée pour la question {question_number} : {response}")
+    print(f"Réponse envoyée pour la question {question_number}: {response}")
     return wait_server(conn)
 
+
+def flag9(conn, statement):
+    """
+    Comment j'ai réfléchi pour résoudre la question 9
+    Tout d'abord, j'ai utilisé une expression régulière pour capturer le numéro du mot et la liste de mots dans la question.
+    Ensuite, j'ai vérifié si l'index du mot est valide.
+    J'ai ensuite extrait la dernière lettre du mot sélectionné
+    Retourne la dernière voyelle du nième mot de la liste 
+    """
+    try:
+        # Extraire le numéro du mot et la liste
+        match = re.search(r"dernière lettre du (\d+)[èe]me mot de cette liste: (.+)", statement)
+        if not match:
+            raise ValueError("Format de la question incorrect.")
+
+        # Récupérer l'index du mot (1-indexé) et la liste de mots
+        word_index = int(match.group(1)) - 1
+        word_list = match.group(2).split()
+
+        # Vérifier si l'index est valide
+        if word_index < 0 or word_index >= len(word_list):
+            raise IndexError(f"Index {word_index + 1} hors de portée pour la liste donnée.")
+
+        # Extraire la dernière lettre du mot
+        selected_word = word_list[word_index]
+        last_letter = selected_word[-1]
+
+        conn.sendall(last_letter.encode())
+        print(f"Réponse envoyée : {last_letter}")
+        reponses["9"] = last_letter
+        return wait_server(conn)
+
+    except (ValueError, IndexError) as e:
+        print(f"Erreur dans le traitement de flag9 : {e}")
+        conn.sendall("Erreur de traitement".encode())
+        return None
+    except Exception as e:
+        print(f"Erreur inattendue dans flag9 : {e}")
+        conn.sendall("Erreur inconnue".encode())
+        return None
+
+def flag10(conn):
+    """
+  Renvoyer toutes vos précédentes réponses, séparer par un underscore (_)
+    """
+    try:
+        answer = "_".join(str(value) for value in reponses.values())
+        print("Réponse envoyée : ", answer)
+        conn.sendall(answer.encode())
+        return wait_server(conn)
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de la réponse : {e}")
+        exit()
 def main():
     """
     Exécute les étapes pour répondre aux questions.
@@ -401,6 +455,15 @@ def main():
         # FLAG 8
         flag8_result = flag8(conn, flag7_result) if flag7_result else None
         print(f"FLAG 8 : {flag8_result}")
+
+        # FLAG 9
+        flag9_result = flag9(conn, flag8_result) if flag8_result else None
+        print(f"FLAG 9 : {flag9_result}")
+        
+        # FLAG 10
+        flag10_result = flag10(conn)
+        print(f"FLAG 10 : {flag10_result}")
+
 
     finally:
         conn.close()
