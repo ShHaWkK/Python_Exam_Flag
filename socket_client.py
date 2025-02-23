@@ -174,7 +174,7 @@ def solve_math_expression(statement):
         result = eval(expression)
         return int(result) 
     except Exception as e:
-        print(f"X Erreur calcul : {e}")
+        print(f"Erreur calcul : {e}")
         return None
 
 def get_color_name(rgb_tuple):
