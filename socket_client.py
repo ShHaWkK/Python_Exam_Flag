@@ -266,6 +266,10 @@ def frequency_analysis(text):
     return {char: (count / total_letters) for char, count in letter_counts.items() if total_letters > 0}
 
 
+#######################################################
+#              Fonction de calcul de distance         #
+#######################################################
+
 def chi_squared_distance(freq1, freq2):
     """
     Cette fonction permet de calculer la distance de Chi carré entre deux distributions de fréquences
@@ -276,7 +280,15 @@ def chi_squared_distance(freq1, freq2):
     return sum((freq1.get(letter, 0) - freq2.get(letter, 0))**2 / freq2.get(letter, 0.0001) for letter in string.ascii_lowercase)
 
 
+
+#######################################################
+#              Fonction pour chaque flag              #
+#######################################################
+
 def flag1(conn):
+    """
+    Cette fonction permet de répondre à la première question
+    """
     try:
         response = "alexandre/uzan/3si2"
         conn.sendall(response.encode())
@@ -286,6 +298,9 @@ def flag1(conn):
         print(f"Erreur dans l'envoi : {e}")
 
 def flag2(conn):
+    """
+    Cette fonction fait appel à la fonction datetime pour obtenir la date du jour
+    """
     try:
         today = datetime.datetime.now().strftime("%d/%m")
         conn.sendall(today.encode())
@@ -295,6 +310,12 @@ def flag2(conn):
         print(f"Erreur dans l'envoi : {e}")
 
 def flag3(conn, statement):
+    """
+    Cette fonction permet de résoudre une expression mathématique
+    En premier lieu, j'ai extrait les opérandes et l'opérateur de l'expression mathématique
+    Ensuite, j'ai évalué l'expression en utilisant l'opérateur approprié
+    Si l'évaluation réussit, j'ai retourné le résultat
+    """
     try:
         if "résultat de" not in statement:
             print("Pas le bon format")
@@ -320,6 +341,12 @@ def flag3(conn, statement):
         return None
 
 def flag4(conn, statement):
+    """
+    Cette fonction permet de décoder un message en utilisant différents algorithmes de décodage
+    J'ai extrait le message encodé de la question
+    Ensuite, j'ai essayé de décoder le message en utilisant chaque algorithme de décodage
+    
+    """
     try:
         if not statement:
             print("Erreur : La question est vide ou invalide.")
@@ -342,6 +369,13 @@ def flag4(conn, statement):
         return None
 
 def flag5(conn, statement):
+    """
+    Cette fonction permet de décoder un message en morse
+    J'ai extrait le message encodé de la question
+    Ensuite, j'ai converti le message hexadécimal en texte
+    J'ai divisé le message en mots et lettres
+    J'ai décodé chaque lettre en morse en utilisant le dictionnaire MORSE_DICT
+    """
     try:
         hex_message = statement.split(":")[-1].strip()
         morse_message = bytes.fromhex(hex_message).decode('utf-8')
@@ -363,6 +397,13 @@ def flag5(conn, statement):
         return None
 
 def flag6(conn, statement):
+    """
+    Cette fonction permet de décoder un message en braille
+    J'ai extrait le message encodé de la question
+    Ensuite, j'ai converti le message hexadécimal en texte
+    J'ai décodé le message en braille en utilisant le dictionnaire brailleDict
+
+    """
     try:
         cleanAnswer = statement.split(" ")[-1].strip()
         decodedAnswer = bytes.fromhex(cleanAnswer).decode('utf-8')
@@ -376,6 +417,13 @@ def flag6(conn, statement):
         return None
 
 def flag7(conn, statement):
+    """"
+    Cette fonction permet de trouver le nom d'une couleur à partir de ses valeurs RGB
+    J'ai utilisé une expression régulière pour extraire les valeurs RGB de la question
+    J'ai converti les valeurs RGB en tuple d'entiers
+    J'ai utilisé la fonction get_color_name pour obtenir le nom de la couleur
+
+    """
     try:
         match = re.search(r'RGB\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)', statement, re.IGNORECASE)
         if not match:
@@ -396,6 +444,12 @@ def flag7(conn, statement):
 
 
 def flag8(conn, statement):
+    """
+    Cette fonction permet de répondre à une question en utilisant la réponse de la question précédente
+    J'ai extrait le numéro de la question de la question actuelle
+    J'ai vérifié si la réponse de la question précédente est disponible
+    J'ai utilisé reponse{} pour stocker les réponses aux questions précédentes
+    """
     match = re.search(r"réponse de la question (\d+)", statement, re.IGNORECASE)
     if not match:
         print("La question précédente n'a pas été trouvée.")
@@ -414,6 +468,15 @@ def flag8(conn, statement):
     return wait_server(conn)
 
 def flag9(conn, statement):
+    """
+    Cette fonction permet de répondre à une question en utilisant un mot d'une liste
+    J'ai extrait l'index du mot de la question
+    J'ai extrait la liste de mots de la question
+    J'ai vérifié si l'index est valide
+    J'ai sélectionné le mot à l'index spécifié
+    J'ai extrait la dernière lettre du mot
+    J'ai retourné la dernière lettre
+    """
     try:
         match = re.search(r"dernière lettre du (\d+)[èe]me mot de cette liste: (.+)", statement)
         if not match:
@@ -442,6 +505,9 @@ def flag9(conn, statement):
         return None
 
 def flag10(conn):
+    """
+    Cette fonction permet de répondre à une question en utilisant les réponses aux questions précédentes
+    """
     try:
         ordered_responses = [str(reponses[str(i)]) for i in range(1, 10)]
         answer = "_".join(ordered_responses)
@@ -453,6 +519,13 @@ def flag10(conn):
         exit()
 
 def flag11(conn, statement):
+    """
+    Cette fonction permet de décrypter un message chiffré en César
+    En utilisant la fonction bruteforce_cesar, j'ai décrypté le message
+    J'ai extrait le message chiffré de la question et j'ai affiché le message
+    En faisant %26, j'ai calculé la nouvelle position du caractère
+    J'ai ajouté le nouveau caractère à la liste des caractères décryptés
+    """
     try:
         # J'extrais le message chiffré
         encrypted_message = statement.split(":")[-1].strip().replace('"', '')
