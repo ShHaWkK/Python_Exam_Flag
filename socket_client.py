@@ -1,3 +1,7 @@
+#######################################################
+#               INPORTATIN DES MODULES                #
+#######################################################
+
 import socket
 import datetime
 import base64
@@ -6,78 +10,20 @@ import re
 import os
 import string
 import nltk
-
 from nltk.corpus import words
 from base58 import b58decode
 from dotenv import load_dotenv
 
-
+#######################################################
+#           Téléchargement du dictionnaire            #
+#######################################################
 nltk.download('words')
 word_list = set(words.words())
 
-reponses = {}
 
-def connexion():
-    load_dotenv()
-    host = os.getenv("IP_SERVER")
-    port = os.getenv("PORT_SERVER")
-
-    if not port.isdigit():
-        raise ValueError(f"Le port spécifié {port} n'est pas valide.")
-    port = int(port)
-
-    try:
-        print("----------------------------------------")
-        print(f"Connexion au serveur {host}:{port}")
-        print("----------------------------------------")
-        connect = socket.create_connection((host, port), timeout=10)
-        response = connect.recv(1024).decode()
-        print(response)
-        return connect
-    except Exception as e:
-        print(f"Erreur de connexion : {e}")
-        exit()
-
-def wait_server(conn):
-    try:
-        response = conn.recv(1024).decode().strip()
-        print(response)
-        return response
-    except Exception as e:
-        print(f"Erreur lors de la réception : {e}")
-        exit()
-
-def decodage(message):
-    decoders = {
-        'base64': base64.b64decode,
-        'base32': base64.b32decode,
-        'base85': base64.b85decode,
-        'base58': b58decode
-    }
-    for encoding, decoder in decoders.items():
-        try:
-            decoded = decoder(message).decode('utf-8')
-            print(f"{encoding} décodé : {decoded}")
-            return decoded
-        except Exception:
-            continue
-    print("Impossible de décoder le message.")
-    return None
-
-def solve_math_expression(statement):
-    try:
-        match = re.search(r"résultat de ([\d\s\+\-\*/]+)\s*\?", statement)
-        if not match:
-            print("Erreur :Pas le bon format")
-            return None
-
-        expression = match.group(1).strip()
-        result = eval(expression)
-        return int(result) 
-    except Exception as e:
-        print(f"X Erreur calcul : {e}")
-        return None
-
+#######################################################
+#           Dictionnaire pour le décodage             #
+#######################################################
 MORSE_DICT = {
     '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E',
     '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J',
@@ -115,6 +61,96 @@ def decode_braille(braille):
 
     return ''.join(decoded_message).upper()
 
+#######################################################
+#      Stockage des réponses pour les questions       #
+#######################################################
+
+reponses = {}
+
+#######################################################
+#              Fonction de connexion                  #
+#######################################################
+
+def connexion():
+    load_dotenv()
+    host = os.getenv("IP_SERVER")
+    port = os.getenv("PORT_SERVER")
+
+    if not port.isdigit():
+        raise ValueError(f"Le port spécifié {port} n'est pas valide.")
+    port = int(port)
+
+    try:
+        print("----------------------------------------")
+        print(f"Connexion au serveur {host}:{port}")
+        print("----------------------------------------")
+        connect = socket.create_connection((host, port), timeout=10)
+        response = connect.recv(1024).decode()
+        print(response)
+        return connect
+    except Exception as e:
+        print(f"Erreur de connexion : {e}")
+        exit()
+#######################################################
+#              Fonction d'attente du serveur          #
+#######################################################
+def wait_server(conn):
+    try:
+        response = conn.recv(1024).decode().strip()
+        print(response)
+        return response
+    except Exception as e:
+        print(f"Erreur lors de la réception : {e}")
+        exit()
+
+#######################################################
+#              Fonction de décodage                   #
+#######################################################
+def decodage(message):
+    """
+    Cette fonction permet de décoder un message en utilisant différents algorithmes de décodage
+    J'ai utilisé un dictionnaire pour stocker les fonctions de décodage
+    J'ai essayé de décoder le message en utilisant chaque fonction
+    Si le décodage réussit, j'affiche le message décodé et je le retourne
+    Sinon, je continue à essayer avec les autres fonctions
+    """
+    decoders = {
+        'base64': base64.b64decode,
+        'base32': base64.b32decode,
+        'base85': base64.b85decode,
+        'base58': b58decode
+    }
+    for encoding, decoder in decoders.items():
+        try:
+            decoded = decoder(message).decode('utf-8')
+            print(f"{encoding} décodé : {decoded}")
+            return decoded
+        except Exception:
+            continue
+    print("Impossible de décoder le message.")
+    return None
+
+def solve_math_expression(statement):
+    """
+    Cette fonction permet de résoudre une expression mathématique
+    J'ai utilisé une expression régulière pour extraire l'expression mathématique
+    J'ai utilisé la fonction eval pour évaluer l'expression
+    Si l'évaluation réussit, je retourne le résultat
+    Sinon, j'affiche l'erreur et je retourne None
+    """
+    try:
+        match = re.search(r"résultat de ([\d\s\+\-\*/]+)\s*\?", statement)
+        if not match:
+            print("Erreur :Pas le bon format")
+            return None
+
+        expression = match.group(1).strip()
+        result = eval(expression)
+        return int(result) 
+    except Exception as e:
+        print(f"X Erreur calcul : {e}")
+        return None
+
 def get_color_name(rgb_tuple):
     try:
         return webcolors.rgb_to_name(rgb_tuple)
@@ -123,34 +159,81 @@ def get_color_name(rgb_tuple):
                             key=lambda name: sum((c1 - c2) ** 2 for c1, c2 in zip(webcolors.hex_to_rgb(webcolors.CSS3_NAMES_TO_HEX[name]), rgb_tuple)))
         return closest_color
 
-def decrypt_cesar(text, key):
-    alphabet = string.ascii_lowercase
-    decrypted_text = []
-
-    for char in text:
-        if char in alphabet:
-            new_char = alphabet[(alphabet.index(char) - key) % 26]
-            decrypted_text.append(new_char)
-        else:
-            decrypted_text.append(char)
-
-    return ''.join(decrypted_text)
+#######################################################
+#              Fonction de décryptage César           #
+#######################################################
 
 def decrypt_cesar(text, key):
-    alphabet = string.ascii_lowercase
-    decrypted_text = []
+    """
+    Cette fonction permet de décrypter un message chiffré en César
+    Nous avons fait comme ceci : 
+    - On a vérifié si le caractère est une lettre minuscule ou majuscule
+    - On a calculé la nouvelle position du caractère en utilisant la formule : (position - clé) % 26
+    - On a ajouté le nouveau caractère à la liste des caractères décryptés
+    - On a retourné le message décrypt
+    """
+    lowercaseAlphabet = string.ascii_lowercase
+    uppercaseAlphabet = string.ascii_uppercase
+    decryptedText = []
+    
+    try:
+        for el in text:
+            print(f"Processing character: {el}")
+            if el in lowercaseAlphabet:
+                newChar = (lowercaseAlphabet.index(el) - key) % 26
+                decryptedText.append(lowercaseAlphabet[newChar])
+                print(f"Lowercase: {el} -> {lowercaseAlphabet[newChar]}")
+            elif el in uppercaseAlphabet:
+                newChar = (uppercaseAlphabet.index(el) - key) % 26
+                decryptedText.append(uppercaseAlphabet[newChar])
+                print(f"Uppercase: {el} -> {uppercaseAlphabet[newChar]}") 
+            else:
+                decryptedText.append(el)
+                print(f"Non-alphabetic: {el}")
 
-    for char in text:
-        if char in alphabet:
-            new_char = alphabet[(alphabet.index(char) - key) % 26]
-            decrypted_text.append(new_char)
-        else:
-            decrypted_text.append(char)
+        decrypted_message = ''.join(decryptedText)
+        print(f"Decrypted message: {decrypted_message}")
+        return decrypted_message
+    except Exception as e:
+        print(f"Erreur lors du décryptage du message : {e}")
+        exit()
 
-    return ''.join(decrypted_text)
+def bruteforce_cesar(text):
+    """ 
+    Cette fonction permet de décrypter un message chiffré en César
+    J'ai utilisé une liste de mots anglais pour vérifier si le message décrypté est correct
+    Comment j'ai réfléchi : 
+    - J'ai testé toutes les clés possibles (26) pour décrypter le message
+    - J'ai vérifié si le message décrypté est un mot anglais
+    - Si c'est le cas, j'ai retourné le message
+    """
+    try:
+        bestWord = None
+        for i in range(26):
+            decrypted = decrypt_cesar(text, i) 
+            if decrypted in words.words():
+                bestWord = decrypted
+                break
+        if bestWord is None:
+            Exception("Aucun mot trouvé.")
+        return bestWord
+    except Exception as e:
+        print(f"Erreur lors du décryptage du message : {e}")
+        exit()
 
+
+#######################################################
+#              Fonction de traitement des flags       #
+#######################################################
 
 def frequency_analysis(text):
+    """
+    Cette fonction permet de calculer la fréquence d'apparition des lettres dans un texte
+    J'ai utilisé un dictionnaire pour stocker le nombre d'occurrences de chaque lettre
+    Ensuite, j'ai calculé le nombre total de lettres dans le texte
+    Puis, j'ai calculé la fréquence de chaque lettre en divisant le nombre d'occurrences par le nombre total de lettres
+    J'ai retourné un dictionnaire contenant la fréquence de chaque lettre
+    """
     letter_counts = {char: 0 for char in string.ascii_lowercase}
 
     for char in text.lower():
@@ -162,22 +245,14 @@ def frequency_analysis(text):
 
 
 def chi_squared_distance(freq1, freq2):
+    """
+    Cette fonction permet de calculer la distance de Chi carré entre deux distributions de fréquences
+    J'ai utilisé la formule suivante pour calculer la distance de Chi carré :
+    distance = somme((freq1 - freq2)^2 / freq2)
+    J'ai retourné la distance de Chi carré
+    """
     return sum((freq1.get(letter, 0) - freq2.get(letter, 0))**2 / freq2.get(letter, 0.0001) for letter in string.ascii_lowercase)
 
-
-def cesar_shift(text):
-    best_word = text 
-    max_valid_words = 0
-
-    for shift in range(26):
-        decrypted_text = decrypt_cesar(text, shift)
-        words_found = sum(1 for word in decrypted_text.split() if word.lower() in word_list)
-
-        if words_found > max_valid_words:
-            max_valid_words = words_found
-            best_word = decrypted_text
-
-    return best_word
 
 def flag1(conn):
     try:
@@ -362,7 +437,7 @@ def flag11(conn, statement):
         print(f"Reçoit : {encrypted_message}")
         
         # 
-        best_word = cesar_shift(encrypted_message)
+        best_word = bruteforce_cesar(encrypted_message)
         print(f"Envoie : {best_word}")
 
         conn.sendall(best_word.encode())
@@ -371,8 +446,38 @@ def flag11(conn, statement):
 
     except Exception as e:
         print(f"Erreur lors du décryptage : {e}")
-        exit()
+def flag12(conn, statement):
+    """
+    La fonction flag12 permet de décrypter un message chiffré en César
+    J'ai utilisé une liste de mots anglais pour vérifier si le message décrypté est correct
+    J'ai eu beaucoup de mal à trouver la bonne clé César pour décrypter le message
+    En premier lieu, j'ai extrait le message chiffré de la question
+    Ensuite, j'ai décrypté le message en utilisant la fonction decrypt_cesar
+    J'ai vérifié si le message décrypté est un mot anglais
+    Si c'est le cas, j'ai retourner le message.
 
+    """
+    cleanAwser = statement.split(" ")[-1]
+    resultat = None
+    try:
+        firstDecode = decodage(cleanAwser)
+        for i in range(26):
+            decrypted = decrypt_cesar(firstDecode, i)
+            
+            final = decodage(decrypted)
+            if final in words.words():
+                print(f"Le résultat est : {final}")
+                resultat = final
+                break
+
+        if resultat is None:
+            raise Exception("Aucune clé César valide n'a produit un résultat correct.")
+
+        conn.sendall(resultat.encode())
+        return wait_server(conn)
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de la réponse : {e}")
+        exit()
 def main():
     conn = connexion()
     try:
@@ -387,7 +492,7 @@ def main():
         flag9_result = flag9(conn, flag8_result) if flag8_result else None
         flag10_result = flag10(conn)
         flag11_result = flag11(conn, flag10_result)
-    
+        flag12_result = flag12(conn, flag11_result)
     finally:
         conn.close()
 
