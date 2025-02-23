@@ -1,3 +1,29 @@
+"""
+# Auteur : Alexandre Uzan alias ShHaWkK
+
+De temps en temps, le code à la question 11 ne fonctionne pas (1 fois sur 3).
+Il faut relancer le script pour que ça fonctionne.
+Je n'ai pas trouvé la cause du problème, mais je pense que c'est un problème de connexion au serveur.
+J'ai essayé de gérer les erreurs et de relancer la connexion si une erreur se produit, mais cela n'a pas résolu le problème.
+
+Petite explication du code :
+
+- téléchargé le dictionnaire de mots anglais en utilisant nltk
+- un dictionnaire MORSE_DICT pour le décodage du morse
+- decode_braille pour décoder le braille
+- fonction decodage pour décoder un message en utilisant différents algorithmes de décodage
+- fonction solve_math_expression pour résoudre une expression mathématique
+- fonction get_color_name pour obtenir le nom d'une couleur à partir de ses valeurs RGB
+- fonction decrypt_cesar pour décrypter un message chiffré en César
+- fonction bruteforce_cesar pour décrypter un message chiffré en César en testant toutes les clés possibles
+- fonction frequency_analysis pour calculer la fréquence d'apparition des lettres dans un texte
+- fonction chi_squared_distance pour calculer la distance de Chi carré entre deux distributions de fréquences
+- fonction pour chaque flag pour traiter les questions et envoyer les réponses
+- fonction main pour exécuter le script
+
+"""
+
+
 #######################################################
 #               INPORTATIN DES MODULES                #
 #######################################################
