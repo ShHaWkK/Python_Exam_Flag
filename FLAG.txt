@@ -1,2 +1,90 @@
-Premier : 
-Flag : FLAG[TjBtUHIzbm9tQ2w0c3Nl]
+PS C:\ESGI\Python_Exam_Flag> & C:/Python312/python.exe c:/ESGI/Python_Exam_Flag/socket_client.py
+[nltk_data] Downloading package words to
+[nltk_data]     C:\Users\PC\AppData\Roaming\nltk_data...
+[nltk_data]   Package words is already up-to-date!
+----------------------------------------
+Connexion au serveur 148.113.42.34:39889
+----------------------------------------
+Question 1: Quel est votre prénom/nom/classe ?
+Merci d'utiliser le format suivant jeanpaul/gauthier/3SI4
+Félicitations! Voici le 1er FLAG:
+FLAG[TjBtUHIzbm9tQ2w0c3Nl]
+
+Question 2: Quelle est la date du jour ?
+Exemple: 14/09
+Félicitations! Voici le 2ème FLAG:
+FLAG[ZDRUM3QxbWU=]
+
+Question 3: Quel est le résultat de 251 - 143 ?
+Félicitations! Voici le 3ème FLAG:
+FLAG[YXIxdGgzbXQxcXVl]
+
+Question 4: Décoder ce message: A7Zd7WzYwRKoGESh6M
+base58 décodé : misexposition
+Félicitations! Voici le 4ème FLAG:
+FLAG[YjRzM0VuY29kZQ==]
+
+Question 5: Décoder ce message en majuscule: 2e2e202d2e202d202e202e2d2e202e202e2e2e202d202e2e202d2e202d2d2e
+Félicitations! Voici le 5ème FLAG:
+FLAG[TTByczNIM3g0]
+
+Question 6: Décoder ce message en majuscule: e2a08920e2a09320e2a08a20e2a09920e2a09120e2a09720e2a09120e2a08e20e2a08e
+Félicitations! Voici le 6ème FLAG:
+FLAG[QjNhaWxsZUgzeDM=]
+
+Question 7: Quelle est la couleur pour les valeurs RGB (255, 218, 185) ?
+Valeurs RGB extraites : (255, 218, 185)
+Nom de la couleur : peachpuff
+Félicitations! Voici le 7ème FLAG:
+FLAG[UjNkR3IzM25CbHUz]
+
+Question 8: Redonné moi la réponse de la question 2
+Félicitations! Voici le 8ème FLAG:
+FLAG[UjRuZDBt]
+
+Question 9: Pouvez-vous me donné la dernière lettre du 1ème mot de cette liste: obfuscation suprabranchial
+Félicitations! Voici le 9ème FLAG:
+FLAG[TDRzdEwzdHQzcg==]
+
+Question 10: Renvoyer toutes vos précédentes réponses, séparer par un underscore (_)
+Félicitations! Voici le 10ème FLAG:
+FLAG[bDRzdEFuc3czcg==]
+
+Question 11: Décoder ce message: yramiphc
+Reçoit : yramiphc
+Decrypted message: yramiphc
+Decrypted message: xqzlhogb
+Decrypted message: wpykgnfa
+Decrypted message: voxjfmez
+Decrypted message: unwieldy
+Envoie : unwieldy
+Félicitations! Voici le 11ème FLAG:
+FLAG[QzFwaDNyUjRuZDBt]
+
+Question 12: Décoder ce message: GC^o_M0rbSNJVE!Nd
+base85 décodé : 2AhsDyKhHEgII
+Decrypted message: 2AhsDyKhHEgII
+Impossible de décoder le message.
+Decrypted message: 2ZgrCxJgGDfHH
+Impossible de décoder le message.
+Decrypted message: 2YfqBwIfFCeGG
+Impossible de décoder le message.
+Decrypted message: 2XepAvHeEBdFF
+Impossible de décoder le message.
+Decrypted message: 2WdoZuGdDAcEE
+Impossible de décoder le message.
+Decrypted message: 2VcnYtFcCZbDD
+Impossible de décoder le message.
+Decrypted message: 2UbmXsEbBYaCC
+Impossible de décoder le message.
+Decrypted message: 2TalWrDaAXzBB
+Impossible de décoder le message.
+Decrypted message: 2SzkVqCzZWyAA
+Impossible de décoder le message.
+Decrypted message: 2RyjUpByYVxZZ
+base58 décodé : perradial
+Le résultat est : perradial
+Félicitations! Voici le 12ème FLAG:
+FLAG[NGxsUjRuZDBt]
+
+Vous avez fini l'examen. Pensez à déposer votre code sur myges!

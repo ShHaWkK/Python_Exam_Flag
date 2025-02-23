@@ -178,18 +178,14 @@ def decrypt_cesar(text, key):
     
     try:
         for el in text:
-            print(f"Processing character: {el}")
             if el in lowercaseAlphabet:
                 newChar = (lowercaseAlphabet.index(el) - key) % 26
                 decryptedText.append(lowercaseAlphabet[newChar])
-                print(f"Lowercase: {el} -> {lowercaseAlphabet[newChar]}")
             elif el in uppercaseAlphabet:
                 newChar = (uppercaseAlphabet.index(el) - key) % 26
                 decryptedText.append(uppercaseAlphabet[newChar])
-                print(f"Uppercase: {el} -> {uppercaseAlphabet[newChar]}") 
             else:
                 decryptedText.append(el)
-                print(f"Non-alphabetic: {el}")
 
         decrypted_message = ''.join(decryptedText)
         print(f"Decrypted message: {decrypted_message}")
