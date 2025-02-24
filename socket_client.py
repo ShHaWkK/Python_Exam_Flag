@@ -1,7 +1,7 @@
 """
 # Auteur : Alexandre Uzan alias ShHaWkK
 
-De temps en temps, le code à la question 11 ne fonctionne pas (1 fois sur 3).
+De temps en temps, le code à la question 11 et 12 ne fonctionne pas (1 fois sur 3).
 Il faut relancer le script pour que ça fonctionne.
 Je n'ai pas trouvé la cause du problème, mais je pense que c'est un problème de connexion au serveur.
 J'ai essayé de gérer les erreurs et de relancer la connexion si une erreur se produit, mais cela n'a pas résolu le problème.
