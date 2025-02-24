@@ -1,0 +1,4 @@
+webcolors
+nltk
+base58
+python-dotenv

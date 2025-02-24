@@ -36,10 +36,25 @@ import re
 import os
 import string
 import nltk
+import sys
+import subprocess
 from nltk.corpus import words
 from base58 import b58decode
 from dotenv import load_dotenv
 
+#######################################################
+#               Téléchargement des dépandances        #
+#######################################################
+
+# Si le fichier requirements.txt existe, on installe les dépendances
+if os.path.exists("requirements.txt"):
+    print("Installation des dépendances depuis requirements.txt...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    except subprocess.CalledProcessError as error:
+        print("Erreur lors de l'installation des dépendances:", error)
+        sys.exit(1)
+        
 #######################################################
 #           Téléchargement du dictionnaire            #
 #######################################################
